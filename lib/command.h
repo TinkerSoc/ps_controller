@@ -8,8 +8,9 @@
 
 typedef enum {
   CMD_INIT = 'I', // Initialisation command
-  CMD_MOVE = 'M', // Absolute move
-  CMD_RELMOVE = 'R', // Relative move
+  CMD_STEER_REL = 'R', // Relative steering
+  CMD_STEER_ABS = 'S', // Absolute steering
+  CMD_THROTTLE_ABS = 'T', // Absolute throttle
 } command_name_t;
 
 typedef int command_value_t;

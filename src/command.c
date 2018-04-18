@@ -13,9 +13,10 @@ char* command_parse(command_t *cmd, char *s) {
   }
   
   switch(s[0]) {
-  case CMD_INIT:  // init
-  case CMD_MOVE: // absolute move
-  case CMD_RELMOVE: // relative move
+  case CMD_INIT:
+  case CMD_STEER_REL:
+  case CMD_STEER_ABS:
+  case CMD_THROTTLE_ABS:
     name = (command_name_t) s[0];
     s++;
     break;
