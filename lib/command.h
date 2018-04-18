@@ -3,7 +3,7 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-#define COMMAND_PRINTF "%c+%d\r\n"
+#define COMMAND_PRINTF "%c%+d\r\n"
 
 typedef enum {
   CMD_INIT = 'I', // Initialisation command
