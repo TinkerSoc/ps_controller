@@ -69,21 +69,12 @@ FILE * initialise(char * filename) {
   device_name = (char*) calloc(64, sizeof(char));
   ioctl(fileno(fp), JSIOCGNAME(64), device_name);
   
-  ioctl(fileno(fp), JSIOCGAXES, &num_axis);
-  printf("Number of axes: %d\n", num_axis);
-  
+  ioctl(fileno(fp), JSIOCGAXES, &num_axis);  
   ioctl(fileno(fp), JSIOCGBUTTONS, &num_buttons);
-  printf("Number of buttons: %d\n", num_buttons);
-
   ioctl(fileno(fp), JSIOCGAXMAP, axis_map);
   ioctl(fileno(fp), JSIOCGBTNMAP, button_map);
 
   states = calloc(num_buttons+num_axis, sizeof(short));
-  
-  for(int i = 0; i < AXIS_MAP_SIZE; i++) {
-    if(axis_map[i])
-      printf("[%02d] -> 0x%02x\n", i, axis_map[i]);
-  }
   
   return fp;
 }
@@ -100,9 +91,6 @@ void update_states(FILE * fp) {
   }
 
   if(data.type & JS_EVENT_AXIS) {
-    printf("Joystick event\n");
-    printf("Axis number: %d\n", data.number);
-    printf("Axis value: %d\n", data.value);
     if(data.number < num_axis && states != NULL) {
       states[num_buttons + data.number] = data.value;
     }
