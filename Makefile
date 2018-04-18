@@ -1,15 +1,14 @@
 CC = gcc
-C_FLAGS = -std=gnu11 -Wall -Wextra -g -O3 -pedantic -I./lib/
+C_FLAGS = -std=c99 -Wall -Wextra -g -O0 -pedantic -I./lib/
 BIN_DIR = bin/
 LIBS = -lpthread
 BINARY = ps_controller
 OBJECTS = bin/main.o bin/controller.o bin/command.o
 
-include arduino.mk
 
 .PHONY: all clean
 
-all: $(BINARY) all-arduino
+all: $(BINARY) arduino
 
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
@@ -24,3 +23,5 @@ clean: clean-arduino
 	rm -f $(OBJECTS)
 	rm -rf $(BIN_DIR)
 	rm -f $(BINARY)
+
+include arduino.mk
