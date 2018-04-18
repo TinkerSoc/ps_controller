@@ -6,6 +6,7 @@
 #include <termios.h>
 #include <unistd.h>
 
+#include "command.h"
 #include "controller.h"
 
 #define CRLF "\r\n"
@@ -13,8 +14,12 @@
 #define MOTOR_MIN (-1024)
 #define MOTOR_MAX (+1024)
 
+#define STEERING_MIN (-1024)
+#define STEERING_MAX (+1024)
+
 void send_initialise(FILE * fp) {
-  fprintf(fp, "I+0" CRLF);
+  command_t cmd = { CMD_INIT, 0 };
+  command_fprintf(&cmd, fp);
 }
 
 void send_motor(FILE * fp, int value) {
@@ -22,7 +27,17 @@ void send_motor(FILE * fp, int value) {
     fprintf(stderr, "Value %+05d out of range\n", value);
     abort();
   }
-  fprintf(fp, "M%+05d" CRLF, value);
+  command_t cmd = { CMD_THROTTLE_ABS, value };
+  command_fprintf(&cmd, fp);
+}
+
+void send_steering(FILE * fp, int value) {
+  if(value < MOTOR_MIN || value > MOTOR_MAX) {
+    fprintf(stderr, "Value %+05d out of range\n", value);
+    abort();
+  }
+  command_t cmd = { CMD_STEER_ABS, value };
+  command_fprintf(&cmd, fp);
 }
 
 // Ripped off from stack overflow:

@@ -36,10 +36,15 @@ thrd_start_t send_data(void * config) {
 
   while(1) {
     short mValue = get_axis(2);
+    short sValue = get_axis(0);
     mValue /= 32;
     mValue += 1023;
     if(mValue > 1024) { mValue = 1024; }
     send_motor(ser, mValue);
+
+    sValue /= 32;
+    send_steering(ser, sValue);
+    
     xtime delay = { 0, UPDATE_PERIOD };
     thrd_sleep(&delay);
   }

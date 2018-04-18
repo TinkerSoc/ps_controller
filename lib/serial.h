@@ -3,6 +3,7 @@
 
 void send_initialise(FILE * fp);
 void send_motor(FILE * fp, int value);
+void send_steering(FILE * fp, int value);
 
 FILE * serial_connect(char * port, int baud);
 
