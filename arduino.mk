@@ -2,9 +2,9 @@ ARDUINO_DIR = Command
 ARDUINO_ZIP = Command.zip
 ARDUINO_OBJECTS = Command/command.cpp Command/command.h
 
-.PHONY: all-arduino clean-arduino
+.PHONY: arduino clean-arduino
 
-all-arduino: $(ARDUINO_ZIP)
+arduino: $(ARDUINO_ZIP)
 
 $(ARDUINO_DIR):
 	mkdir -p $@
