@@ -13,7 +13,7 @@ VALUE := SIGN DIGIT+
 
 NL := \r\n
 
-COMMAND := 'I' | 'M'
+COMMAND := 'B' | 'F' | 'I' | 'R' | 'S' | 'T'
 
 STMT := COMMAND VALUE NL
 ```
@@ -23,11 +23,15 @@ All lines will be terminated with `CRLF`. An example sequence of commands:
 
 ```
 I+0
+B+0
 M+300
 M-300
+F+0
+B+1
 ```
 
-Initialise, motor forwards 300, motor reverse 300.
+Initialise, disengage brake, motor forwards 300, motor reverse 300,
+freewheel, engage brake.
 
 ## Conclusion
 Totes works.

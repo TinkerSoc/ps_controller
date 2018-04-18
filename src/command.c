@@ -13,6 +13,8 @@ char* command_parse(command_t *cmd, char *s) {
   }
   
   switch(s[0]) {
+  case CMD_BRAKE:
+  case CMD_FREEWHEEL:
   case CMD_INIT:
   case CMD_STEER_REL:
   case CMD_STEER_ABS:

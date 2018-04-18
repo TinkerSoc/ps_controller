@@ -7,6 +7,8 @@
 #define COMMAND_PRINTF ("%c%+d" COMMAND_NEWLINE)
 
 typedef enum {
+  CMD_BRAKE = 'B', // Set brake
+  CMD_FREEWHEEL = 'F', // Motor controller Freewheel 
   CMD_INIT = 'I', // Initialisation command
   CMD_STEER_REL = 'R', // Relative steering
   CMD_STEER_ABS = 'S', // Absolute steering
