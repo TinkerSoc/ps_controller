@@ -1,12 +1,14 @@
+#include <inttypes.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
 
+#include <linux/input.h>
 #include <linux/joystick.h>
 
-#define AXIS_MAP_SIZE (0x2000)
-#define BUTTON_MAP_SIZE (0x2000)
+#define AXIS_MAP_SIZE (ABS_CNT)
+#define BUTTON_MAP_SIZE (KEY_MAX - BTN_MISC + 1)
 
  int fileno(FILE* fp);
 
@@ -33,7 +35,6 @@ typedef enum button_name {
   BTN_PS = 0x2C0  
 } button_name_t;
 
-
 typedef enum axis_name {
   AXIS_X = 0x00,
   AXIS_Y = 0x01,
@@ -47,14 +48,21 @@ typedef enum axis_name {
 } axis_name_t;
 
 char * device_name;
-char * axis_map;
-char * button_map;
+uint8_t axis_map[AXIS_MAP_SIZE];
+uint16_t button_map[BUTTON_MAP_SIZE];
+short * states;
 
-int num_axis;
-int num_buttons;
+unsigned int num_axis;
+unsigned int num_buttons;
 
 FILE * initialise(char * filename) {
   FILE * fp = fopen(filename, "rb");
+
+  // TODO: better error printing is needed here.
+  if(fp == NULL) {
+    fprintf(stderr, "Probably no such file (%s)\n", filename);
+    exit(1);
+  }
 
   if(device_name != NULL)
     free(device_name);
@@ -67,32 +75,60 @@ FILE * initialise(char * filename) {
   ioctl(fileno(fp), JSIOCGBUTTONS, &num_buttons);
   printf("Number of buttons: %d\n", num_buttons);
 
-  if(axis_map != NULL)
-    free(axis_map);
-  axis_map = (char*) calloc(AXIS_MAP_SIZE, sizeof(char));
   ioctl(fileno(fp), JSIOCGAXMAP, axis_map);
-
-  if(button_map != NULL)
-    free(button_map);
-  button_map = (char*) calloc(BUTTON_MAP_SIZE, sizeof(char));
   ioctl(fileno(fp), JSIOCGBTNMAP, button_map);
+
+  states = calloc(num_buttons+num_axis, sizeof(short));
+  
+  for(int i = 0; i < AXIS_MAP_SIZE; i++) {
+    if(axis_map[i])
+      printf("[%02d] -> 0x%02x\n", i, axis_map[i]);
+  }
   
   return fp;
 }
 
 void update_states(FILE * fp) {
-  if(!num_axis)
-    return;
+  struct js_event data;
+  fread(&data, sizeof(data), 1, fp);
 
-  int elems = 20;
-  joystick_data_t * data = calloc(elems, sizeof(joystick_data_t));
-  // assert(sizeof(joystick_data_t)==8);
-  fread(data, sizeof(data), elems, fp);
-
-  for(int i = 0; i<elems; i++) {
-    printf("Time: %d\n", data[i].time);
-    printf("Value: %hd\n", data[i].value);
-    printf("Type: 0x%02hhx\n", data[i].type);
-    printf("Number: 0x%02hhx\n\n", data[i].number);
+  // Button events
+  if(data.type & JS_EVENT_BUTTON) {
+    if(data.number < num_buttons && states != NULL) {
+      states[data.number] = data.value;
+    }
   }
+
+  if(data.type & JS_EVENT_AXIS) {
+    printf("Joystick event\n");
+    printf("Axis number: %d\n", data.number);
+    printf("Axis value: %d\n", data.value);
+    if(data.number < num_axis && states != NULL) {
+      states[num_buttons + data.number] = data.value;
+    }
+  }
+}
+
+short get_button(size_t button) {
+  if(button >= num_buttons) {
+    fprintf(stderr, "Error: Button %lu is out of range of this %d button device.\n", button, num_buttons);
+    return 0;
+  }
+  if(states == NULL) {
+    return 0;
+  }
+  
+  return states[button];
+}
+
+short get_axis(size_t axis) {
+  if(axis >= num_axis) {
+    fprintf(stderr, "Error: Axis %lu is out of range of this %d axis device.\n", axis, num_axis);
+    return 0;
+  }
+  if(states == NULL) {
+    return 0;
+  }
+  
+  return states[num_buttons + axis];
 }

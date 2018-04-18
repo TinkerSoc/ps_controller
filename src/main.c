@@ -13,6 +13,7 @@ int main(int argc, char * argv[]) {
   FILE * fp = initialise(argv[1]);
   printf("Device name: %s\n", device_name);
 
-  update_states(fp);
+  while(1) update_states(fp);
+  
   return 0;
 }
