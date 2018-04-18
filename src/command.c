@@ -6,7 +6,7 @@
 
 char* command_parse(command_t *cmd, char *s) {
   command_name_t name;
-  command_val_t val;
+  command_value_t value;
   char *orig = s;
   if (strlen(s) < 2) {
     return s;
@@ -16,31 +16,30 @@ char* command_parse(command_t *cmd, char *s) {
   case CMD_INIT:  // init
   case CMD_MOVE: // absolute move
   case CMD_RELMOVE: // relative move
-    name = s[0];
+    name = (command_name_t) s[0];
     s++;
     break;
   default:
     return s;
   }
 
-  // char* eptr;
-  val = strtol(s, &s, 10);
+  value = strtol(s, &s, 10);
 
-  if (strncmp(s, "\r\n", 2) == 0) {
-    s += 2;
+  if (strncmp(s, COMMAND_NEWLINE, strlen(COMMAND_NEWLINE)) == 0) {
+    s += strlen(COMMAND_NEWLINE);
     cmd->name = name;
-    cmd->val = val;
+    cmd->value = value;
     return s;
   } else { // parsing incomplete. abort
     return orig;
   }
-
-} 
+}
+    
 
 int command_snprintf(command_t *cmd, char *s, size_t n) {
-  return snprintf(s, n, COMMAND_PRINTF, cmd->name, cmd->val);
+  return snprintf(s, n, COMMAND_PRINTF, cmd->name, cmd->value);
 }
 
 int command_fprintf(command_t *cmd, FILE *stream) {
-  return fprintf(stream, COMMAND_PRINTF, cmd->name, cmd->val);
+  return fprintf(stream, COMMAND_PRINTF, cmd->name, cmd->value);
 }

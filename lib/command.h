@@ -3,7 +3,8 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-#define COMMAND_PRINTF "%c%+d\r\n"
+#define COMMAND_NEWLINE "\r\n"
+#define COMMAND_PRINTF ("%c%+d" COMMAND_NEWLINE)
 
 typedef enum {
   CMD_INIT = 'I', // Initialisation command
@@ -11,11 +12,11 @@ typedef enum {
   CMD_RELMOVE = 'R', // Relative move
 } command_name_t;
 
-typedef int command_val_t;
+typedef int command_value_t;
 
 typedef struct command_t {
   command_name_t name;
-  command_val_t val;
+  command_value_t value;
 } command_t;
 
 /*
