@@ -20,6 +20,7 @@
 void send_initialise(FILE * fp) {
   command_t cmd = { CMD_INIT, 0 };
   command_fprintf(&cmd, fp);
+  fflush(fp);
 }
 
 void send_motor(FILE * fp, int value) {
@@ -29,6 +30,7 @@ void send_motor(FILE * fp, int value) {
   }
   command_t cmd = { CMD_THROTTLE_ABS, value };
   command_fprintf(&cmd, fp);
+  fflush(fp);
 }
 
 void send_steering(FILE * fp, int value) {
@@ -38,6 +40,7 @@ void send_steering(FILE * fp, int value) {
   }
   command_t cmd = { CMD_STEER_ABS, value };
   command_fprintf(&cmd, fp);
+  fflush(fp);
 }
 
 // Ripped off from stack overflow:
@@ -106,8 +109,10 @@ FILE * serial_connect(char* port, int baud) {
     perror("could not allocate file handle");
   }
 
-  if(baud)
+  if(baud) {
     set_interface_attribs(fileno(fp), baud, 0);
-
+    set_blocking(fileno(fp), 0);
+  }
+  
   return fp;
 }

@@ -10,7 +10,7 @@
 #define AXIS_MAP_SIZE (ABS_CNT)
 #define BUTTON_MAP_SIZE (KEY_MAX - BTN_MISC + 1)
 
- int fileno(FILE* fp);
+int fileno(FILE* fp);
 
 typedef struct joystick_data {
   int time;

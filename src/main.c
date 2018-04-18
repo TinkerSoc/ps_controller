@@ -34,6 +34,9 @@ thrd_start_t send_data(void * config) {
 
   send_initialise(ser);
 
+  xtime delay = { 10, 0 };
+  thrd_sleep(&delay);
+
   while(1) {
     short mValue = get_axis(2);
     short sValue = get_axis(0);
