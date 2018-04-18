@@ -1,9 +1,9 @@
 CC = gcc
-C_FLAGS = -std=c99 -Wall -Wextra -g -O0 -pedantic -I./lib/
+C_FLAGS = -std=gnu11 -Wall -Wextra -g -O0 -pedantic -I./lib/
 BIN_DIR = bin/
 LIBS = -lpthread
 BINARY = ps_controller
-OBJECTS = bin/main.o bin/controller.o bin/command.o
+OBJECTS = bin/main.o bin/controller.o bin/command.o bin/serial.o
 
 
 .PHONY: all clean
