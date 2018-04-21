@@ -3,7 +3,7 @@ LIBDIR = lib
 OBJDIR = bin
 
 CC ?= clang
-CFLAGS += -MMD -MP -std=gnu11 -Wall -Wextra -O3 -pedantic -I./lib/
+CFLAGS += -MMD -MP -std=c11 -Wall -Wextra -O3 -pedantic -I./lib/ -D_XOPEN_SOURCE=700 -D_DEFAULT_SOURCE
 LDLIBS += -lpthread
 
 SRC = $(wildcard $(SRCDIR)/*.c)

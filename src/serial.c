@@ -1,5 +1,6 @@
 #include <errno.h>
-#include <fcntl.h> 
+#include <fcntl.h>
+#include <features.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -73,7 +74,9 @@ int set_interface_attribs (int fd, int speed, int parity) {
   tty.c_cflag &= ~(PARENB | PARODD);      // shut off parity
   tty.c_cflag |= parity;
   tty.c_cflag &= ~CSTOPB;
+#ifdef __USE_MISC
   tty.c_cflag &= ~CRTSCTS;
+#endif
 
   if (tcsetattr (fd, TCSANOW, &tty) != 0) {
     perror("tcsetattr");
@@ -99,14 +102,9 @@ void set_blocking (int fd, int should_block) {
 }
 
 FILE * serial_connect(char* port, int baud) {
-  int fd = open(port, O_RDWR | O_NOCTTY | O_SYNC);
-  if (fd < 0) {
-    perror("connecting");
-  }
-
-  FILE * fp = fdopen(fd, "r+");
+  FILE * fp = fopen(port, "r+");
   if(fp == NULL) {
-    perror("could not allocate file handle");
+    perror("could not open file");
   }
 
   if(baud) {

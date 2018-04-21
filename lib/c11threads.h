@@ -16,10 +16,10 @@ Main project site: https://github.com/jtsiomb/c11threads
 #define C11THREADS_H_
 
 // TODO: Investigate this BS
-#define __USE_UNIX98 // Needed for PTHREAD_MUTEX_NORMAL
-#ifndef __USE_POSIX199309
-#define __USE_POSIX199309 // Needed for nanosleep()
-#endif
+// #define __USE_UNIX98 // Needed for PTHREAD_MUTEX_NORMAL
+// #ifndef __USE_POSIX199309
+// #define __USE_POSIX199309 // Needed for nanosleep()
+// #endif
 
 #include <time.h>
 #include <errno.h>
