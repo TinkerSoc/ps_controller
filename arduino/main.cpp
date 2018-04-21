@@ -21,21 +21,24 @@ extern HardwareSerial Serial;
 
 #define STEERING_GAP 5
 
-#define PIN_STEERING_DIR 7
-#define PIN_STEERING_PULSE 6
+#define PIN_STEERING_PEND   (89) // A8
+#define PIN_STEERING_ALARM  (88) // A9
+#define PIN_STEERING_PULSE  (87) // A10
+#define PIN_STEERING_DIR    (86) // A11
+#define PIN_STEERING_ENABLE (85) // A12
 
 #define STEERING_DIR_LEFT HIGH
 #define STEERING_DIR_RIGHT LOW
+
+#define PIN_TRANSMISSION_BRAKE (53)
 
 #define PIN_STEERING_LIMIT_L 2
 #define PIN_STEERING_LIMIT_R 3
 
 // throttle
 
-#define PIN_THROTTLE_FWD 9
-#define PIN_THROTTLE_FWD_ENABLE 12
-#define PIN_THROTTLE_REV 10
-#define PIN_THROTTLE_REV_ENABLE 13
+#define PIN_THROTTLE 9
+#define PIN_THROTTLE_DIR 10
 
 #define THROTTLE_ABS_MAX 1024
 #define THROTTLE_ABS_MIN (-1024)
@@ -129,8 +132,7 @@ void steering_init() {
 bool throttle_enabled;
 
 void throttle_enable() {
-  digitalWrite(PIN_THROTTLE_FWD_ENABLE, HIGH);
-  digitalWrite(PIN_THROTTLE_REV_ENABLE, HIGH);
+  digitalWrite(PIN_TRANSMISSION_BRAKE, HIGH);
   throttle_enabled = true;
 }
 
@@ -138,25 +140,15 @@ bool throttle_set(int n) {
   if (!throttle_enabled) {
     return false;
   }
-  
-  if (n < 0) {
-    digitalWrite(PIN_THROTTLE_FWD, 0);
-    analogWrite(PIN_THROTTLE_REV, -n);
-    return true;
-  } else if (n == 0) {
-    digitalWrite(PIN_THROTTLE_FWD, 0);
-    digitalWrite(PIN_THROTTLE_REV, 0);
-    return true;
-  } else if (n > 0) {
-    digitalWrite(PIN_THROTTLE_REV, 0);
-    analogWrite(PIN_THROTTLE_FWD, n);
-    return true;
-  }
+
+  digitalWrite(PIN_THROTTLE_DIR, n < 0 ? STEERING_DIR_LEFT : STEERING_DIR_RIGHT);
+  analogWrite(PIN_THROTTLE, n);
+  return true;
 }
 
 int map_throttle_value(int v) {
   int x = map(v, THROTTLE_ABS_MIN, THROTTLE_ABS_MAX, -255, 255);
-  return constrain(v, -255, 255);
+  return constrain(x, -255, 255);
 }
 
 
@@ -192,10 +184,8 @@ void setup() {
     CHANGE);
     
   // Throttle
-  pinMode(PIN_THROTTLE_FWD, OUTPUT);
-  pinMode(PIN_THROTTLE_FWD_ENABLE, OUTPUT);
-  pinMode(PIN_THROTTLE_REV, OUTPUT);
-  pinMode(PIN_THROTTLE_REV_ENABLE, OUTPUT);
+  pinMode(PIN_THROTTLE, OUTPUT);
+  pinMode(PIN_THROTTLE_DIR, OUTPUT);
   throttle_enabled = false;
   
   
