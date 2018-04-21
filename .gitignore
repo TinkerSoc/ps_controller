@@ -1,6 +1,4 @@
 *.o
 *.d
-*~
 bin/
-src/main
 controller
