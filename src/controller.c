@@ -1,5 +1,6 @@
 #include <inttypes.h>
 #include <unistd.h>
+#include <stdatomic.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -55,6 +56,8 @@ short * states;
 unsigned int num_axis;
 unsigned int num_buttons;
 
+volatile atomic_int states_lock;
+
 FILE * initialise(char * filename) {
   FILE * fp = fopen(filename, "rb");
 
@@ -79,7 +82,22 @@ FILE * initialise(char * filename) {
   return fp;
 }
 
+int get_lock() {
+  int exp = 0;
+  int rc = 0;
+  while(!rc) {
+    rc = atomic_compare_exchange_weak(&states_lock, &exp, 1);
+  }
+  return rc;
+}
+
+void release_lock() {
+  atomic_store_explicit(&states_lock, 0, memory_order_release);
+}
+
 void update_states(FILE * fp) {
+  get_lock();
+  
   struct js_event data;
   fread(&data, sizeof(data), 1, fp);
 
@@ -95,6 +113,8 @@ void update_states(FILE * fp) {
       states[num_buttons + data.number] = data.value;
     }
   }
+
+  release_lock();
 }
 
 short get_button(size_t button) {
@@ -105,8 +125,12 @@ short get_button(size_t button) {
   if(states == NULL) {
     return 0;
   }
+
+  get_lock();
+  short ret = states[button];
+  release_lock();
   
-  return states[button];
+  return ret;
 }
 
 short get_axis(size_t axis) {
@@ -117,6 +141,10 @@ short get_axis(size_t axis) {
   if(states == NULL) {
     return 0;
   }
+
+  get_lock();
+  short ret = states[num_buttons + axis];
+  release_lock();
   
-  return states[num_buttons + axis];
+  return ret;
 }
