@@ -109,7 +109,7 @@ FILE * serial_connect(char* port, int baud) {
 
   if(baud) {
     set_interface_attribs(fileno(fp), baud, 0);
-    set_blocking(fileno(fp), 0);
+    set_blocking(fileno(fp), 1);
   }
   
   return fp;
