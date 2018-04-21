@@ -1,6 +1,8 @@
 INCLUDES = -I../lib/
 CXXFLAGS += $(INCLUDES) -Wall -pedantic
 CFLAGS += $(INCLUDES) -Wall -pedantic
+
+-include board.mk
 BOARD_TAG ?= uno
 
 EXT_SRCS = command.c
