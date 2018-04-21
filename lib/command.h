@@ -6,6 +6,10 @@
 #define COMMAND_NEWLINE "\r\n"
 #define COMMAND_PRINTF ("%c%+d" COMMAND_NEWLINE)
 
+#ifdef __cplusplus /* If this is a C++ compiler, use C linkage */
+extern "C" {
+#endif
+
 typedef enum {
   CMD_BRAKE = 'B', // Set brake
   CMD_FREEWHEEL = 'F', // Motor controller Freewheel 
@@ -68,5 +72,9 @@ int command_fprintf(command_t*, FILE*);
  *     command_snprintf(&cmd, buffer, 100);
  */
 int command_snprintf(command_t*, char*, size_t);
+
+#ifdef __cplusplus /* If this is a C++ compiler, end C linkage */
+}
+#endif
 
 #endif // COMMAND_H
