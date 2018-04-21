@@ -13,41 +13,6 @@
 
 int fileno(FILE* fp);
 
-typedef struct joystick_data {
-  int time;
-  short value;
-  unsigned char type;
-  unsigned char number;
-} joystick_data_t;
- 
-typedef enum button_name {
-  THUMB = 0x121,
-  
-  DPAD_UP = 0x124,
-  DPAD_RIGHT = 0x125,
-  DPAD_DOWN = 0x126,
-  DPAD_LEFT = 0x127,
-  THROTTLE = 0x128,
-  
-  BUMPER = 0x12A,
-  BTNO = 0x12D,
-  BTNX = 0x12E,
-  
-  BTN_PS = 0x2C0  
-} button_name_t;
-
-typedef enum axis_name {
-  AXIS_X = 0x00,
-  AXIS_Y = 0x01,
-
-  AXIS_THROTTLE_A = 0x2C,
-  AXIS_DPAD_UP_A = 0x28,
-  AXIS_DPAD_RIGHT_A = 0x29,
-  AXIS_DPAD_DOWN_A = 0x2A,
-  AXIS_DPAD_LEFT_A = 0x2B,
-  AXIS_BUMPER_A = 0x2D
-} axis_name_t;
-
 char * device_name;
 uint8_t axis_map[AXIS_MAP_SIZE];
 uint16_t button_map[BUTTON_MAP_SIZE];
@@ -67,15 +32,18 @@ FILE * initialise(char * filename) {
     exit(1);
   }
 
+  int fd = fileno(fp);
+  
   if(device_name != NULL)
     free(device_name);
+
   device_name = (char*) calloc(64, sizeof(char));
-  ioctl(fileno(fp), JSIOCGNAME(64), device_name);
+  ioctl(fd, JSIOCGNAME(64), device_name);
   
-  ioctl(fileno(fp), JSIOCGAXES, &num_axis);  
-  ioctl(fileno(fp), JSIOCGBUTTONS, &num_buttons);
-  ioctl(fileno(fp), JSIOCGAXMAP, axis_map);
-  ioctl(fileno(fp), JSIOCGBTNMAP, button_map);
+  ioctl(fd, JSIOCGAXES, &num_axis);  
+  ioctl(fd, JSIOCGBUTTONS, &num_buttons);
+  ioctl(fd, JSIOCGAXMAP, axis_map);
+  ioctl(fd, JSIOCGBTNMAP, button_map);
 
   states = calloc(num_buttons+num_axis, sizeof(short));
   
@@ -104,13 +72,15 @@ void update_states(FILE * fp) {
   // Button events
   if(data.type & JS_EVENT_BUTTON) {
     if(data.number < num_buttons && states != NULL) {
-      states[data.number] = data.value;
+      int idx = button_map[data.number];
+      states[idx] = data.value;
     }
   }
 
   if(data.type & JS_EVENT_AXIS) {
     if(data.number < num_axis && states != NULL) {
-      states[num_buttons + data.number] = data.value;
+      int idx = axis_map[data.number];
+      states[idx + num_buttons] = data.value;
     }
   }
 
@@ -118,10 +88,6 @@ void update_states(FILE * fp) {
 }
 
 short get_button(size_t button) {
-  if(button >= num_buttons) {
-    fprintf(stderr, "Error: Button %lu is out of range of this %d button device.\n", button, num_buttons);
-    return 0;
-  }
   if(states == NULL) {
     return 0;
   }
@@ -134,10 +100,6 @@ short get_button(size_t button) {
 }
 
 short get_axis(size_t axis) {
-  if(axis >= num_axis) {
-    fprintf(stderr, "Error: Axis %lu is out of range of this %d axis device.\n", axis, num_axis);
-    return 0;
-  }
   if(states == NULL) {
     return 0;
   }

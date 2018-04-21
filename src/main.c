@@ -12,8 +12,11 @@
 #include "controller.h"
 #include "serial.h"
 
-#define UPDATES_PER_SEC (60)
-#define UPDATE_PERIOD (1000000000 / UPDATES_PER_SEC)
+#define UPDATES_PER_SEC         (60)
+#define UPDATE_PERIOD           (1000000000 / UPDATES_PER_SEC)
+#define REVERSE_BUTTON          (0x130)
+#define STEERING_AXIS           (0)
+#define THROTTLE_AXIS           (2)
 
 typedef struct {
   char * filename;
@@ -34,16 +37,17 @@ thrd_start_t send_data(void * config) {
 
   send_initialise(ser);
 
-  xtime delay = { 10, 0 };
+  xtime delay = { 5, 0 };
   thrd_sleep(&delay);
 
   while(1) {
-    short mValue = get_axis(2);
-    short sValue = get_axis(0);
+    short mValue = get_axis(THROTTLE_AXIS);
+    short sValue = get_axis(STEERING_AXIS);
     mValue /= 32;
-    mValue += 1023;
+    mValue += 1024;
+    mValue /= 2;
     if(mValue > 1024) { mValue = 1024; }
-    mValue = get_button(0) ? -mValue : mValue;
+    mValue = get_button(REVERSE_BUTTON) ? -mValue : mValue;
 
     send_motor(ser, mValue);
 
