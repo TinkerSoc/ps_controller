@@ -1,8 +1,7 @@
 INCLUDES = -I../lib/
 CXXFLAGS += $(INCLUDES) -Wall -pedantic
 CFLAGS += $(INCLUDES) -Wall -pedantic
-BOARD_TAG = uno
-ARDUINO_QUIET = 1
+BOARD_TAG ?= uno
 
 EXT_SRCS = command.c
 
