@@ -36,8 +36,10 @@ thrd_start_t send_data(void * config) {
 			      ((serial_config_t*)config)->baud);
 
   send_initialise(ser);
+  xtime delay = { 2, 0 };
+  thrd_sleep(&delay);
 
-  xtime delay = { 5, 0 };
+  send_initialise(ser);
   thrd_sleep(&delay);
 
   while(1) {

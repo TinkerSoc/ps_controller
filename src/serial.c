@@ -65,7 +65,7 @@ int set_interface_attribs (int fd, int speed, int parity) {
   // no canonical processing
   tty.c_oflag = 0;                // no remapping, no delays
   tty.c_cc[VMIN]  = 0;            // read doesn't block
-  tty.c_cc[VTIME] = 5;            // 0.5 seconds read timeout
+  tty.c_cc[VTIME] = 0;            // 0.5 seconds read timeout
 
   tty.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
 
@@ -102,14 +102,19 @@ void set_blocking (int fd, int should_block) {
 }
 
 FILE * serial_connect(char* port, int baud) {
-  FILE * fp = fopen(port, "r+");
+  int fd = open(port, O_RDWR|O_NOCTTY|O_NONBLOCK|O_CLOEXEC|O_NDELAY);
+  if (fd < 0) {
+    perror("connecting");
+  }
+
+  FILE * fp = fdopen(fd, "r+");
   if(fp == NULL) {
-    perror("could not open file");
+    perror("could not allocate file handle");
   }
 
   if(baud) {
     set_interface_attribs(fileno(fp), baud, 0);
-    set_blocking(fileno(fp), 1);
+    set_blocking(fileno(fp), 0);
   }
   
   return fp;
