@@ -1,25 +1,27 @@
-CC = gcc
-C_FLAGS = -std=gnu11 -Wall -Wextra -g -O0 -pedantic -I./lib/
-BIN_DIR = bin/
-LIBS = -lpthread
-BINARY = controller
-OBJECTS = bin/main.o bin/controller.o bin/command.o bin/serial.o
+SRCDIR = src
+LIBDIR = lib
 
+CC = clang
+CFLAGS = -MMD -MP -std=gnu11 -Wall -Wextra -O3 -pedantic -I./lib/
+LDLIBS = -lpthread
+
+SRC = $(wildcard $(SRCDIR)/*.c)
+OBJ = $(SRC:.c=.o)
+DEP = $(SRC:.c=.d)
 
 .PHONY: all clean
+all: controller
 
-all: $(BINARY)
+controller: $(OBJ)
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
-$(BIN_DIR):
-	mkdir -p $(BIN_DIR)
 
-$(BINARY): $(BIN_DIR) $(OBJECTS)
-	$(CC) $(C_FLAGS) $(OBJECTS) $(LIBS) -o $@
+-include $(DEP)
 
-bin/%.o : src/%.c | $(BIN_DIR)
-	$(CC) $(C_FLAGS) $< -c -o $@
+debug: CFLAGS += -g3 -O -DDEBUG
+debug: all
 
 clean:
-	rm -f $(OBJECTS)
-	rm -rf $(BIN_DIR)
-	rm -f $(BINARY)
+	$(RM) $(OBJ)
+	$(RM) $(DEP)
+	$(RM) controller
