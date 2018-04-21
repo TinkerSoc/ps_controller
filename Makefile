@@ -2,9 +2,9 @@ SRCDIR = src
 LIBDIR = lib
 OBJDIR = bin
 
-CC = clang
-CFLAGS = -MMD -MP -std=gnu11 -Wall -Wextra -O3 -pedantic -I./lib/
-LDLIBS = -lpthread
+CC ?= clang
+CFLAGS += -MMD -MP -std=gnu11 -Wall -Wextra -O3 -pedantic -I./lib/
+LDLIBS += -lpthread
 
 SRC = $(wildcard $(SRCDIR)/*.c)
 OBJ = $(patsubst $(SRCDIR)/%, $(OBJDIR)/%, $(SRC:.c=.o))
