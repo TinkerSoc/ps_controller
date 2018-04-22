@@ -19,7 +19,6 @@ extern HardwareSerial Serial;
 #define STEERING_ABS_MAX 1024
 #define STEERING_ABS_MIN (-1024)
 
-#define STEERING_GAP 5
 
 #define PIN_STEERING_PEND   (89) // A8
 #define PIN_STEERING_ALARM  (88) // A9
@@ -27,6 +26,8 @@ extern HardwareSerial Serial;
 #define PIN_STEERING_DIR    (86) // A11
 #define PIN_STEERING_ENABLE (85) // A12
 
+#define STEERING_GAP 5
+#define STEERING_MIN_TICK   (1000000 / 200000)
 #define STEERING_DIR_LEFT HIGH
 #define STEERING_DIR_RIGHT LOW
 
@@ -37,7 +38,8 @@ extern HardwareSerial Serial;
 
 // throttle
 
-#define PIN_THROTTLE 9
+//#define PIN_THROTTLE 9
+#define PIN_THROTTLE (LED_BUILTIN)
 #define PIN_THROTTLE_DIR 10
 
 #define THROTTLE_ABS_MAX 1024
@@ -73,7 +75,9 @@ void steer_limit_r_isr() {
 
 void steer_pulse() {
   digitalWrite(PIN_STEERING_PULSE, HIGH);
+  delayMicroseconds(STEERING_MIN_TICK);
   digitalWrite(PIN_STEERING_PULSE, LOW);
+  delayMicroseconds(STEERING_MIN_TICK);
 }
 
 bool steer_left() {
@@ -242,7 +246,9 @@ void loop() {
       // TODO
       break;
     case CMD_INIT:
-      steering_init();
+      //if(cmd.value == 1) {
+      //steering_init();
+      //}
       throttle_enable();
       break;
     case CMD_STEER_REL:
@@ -254,13 +260,15 @@ void loop() {
     case CMD_THROTTLE_ABS: {
       int v = map_throttle_value(cmd.value);
       throttle_set(v);
-      
+      // Serial.print("Throttle: ");
+      //Serial.print(v);
+      //Serial.print("\r\n");
+      //delay(5);
       break;
     }
     default:
       break;
     }
   }
-  delay(5);
 }
 
