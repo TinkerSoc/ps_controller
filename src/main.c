@@ -16,7 +16,18 @@
 #define UPDATE_PERIOD           (1000000000 / UPDATES_PER_SEC)
 #define REVERSE_BUTTON          (0x130)
 #define STEERING_AXIS           (0)
-#define THROTTLE_AXIS           (2)
+#define THROTTLE_AXIS           (5)
+
+#define BTN_REINIT              (0x134)
+#define BTN_SPEED_LMT_UP        (0x137)
+#define BTN_SPEED_LMT_DOWN      (0x136)
+#define MAX_SPEED               (4)
+
+int btnUp = 0;
+int btnDown = 0;
+int btnReInit = 0;
+int limit = 0;
+
 
 typedef struct {
   char * filename;
@@ -31,9 +42,20 @@ thrd_start_t controller(void * filename) {
   while(1) update_states(fp);  
 }
 
+void set_xbox_leds(int l) {
+  int cmds[] = { 6, 7, 8, 9, 0 };
+  FILE * fp = fopen("/sys/class/leds/xpad0/brightness", "w");
+  if(fp != NULL) {
+    fprintf(fp, "%d\n", cmds[l]);
+    fclose(fp);
+  }
+}
+
 thrd_start_t send_data(void * config) {
   FILE * ser = serial_connect(((serial_config_t*)config)->filename,
 			      ((serial_config_t*)config)->baud);
+
+  set_xbox_leds(5);
 
   send_initialise(ser);
   xtime delay = { 2, 0 };
@@ -42,12 +64,49 @@ thrd_start_t send_data(void * config) {
   send_initialise(ser);
   thrd_sleep(&delay);
 
+  set_xbox_leds(limit);
+  
   while(1) {
+    if(get_button(BTN_SPEED_LMT_UP) == 1) {
+      if(btnUp == 0) {
+	limit += MAX_SPEED / 4;
+	limit %= MAX_SPEED;
+	set_xbox_leds(limit);
+      }
+      btnUp = 1;
+    } else {
+      btnUp = 0;
+    }
+    
+    if(get_button(BTN_SPEED_LMT_DOWN) == 1) {
+      if(btnDown == 0) {
+	limit += (MAX_SPEED / 4) * 3;
+	limit %= MAX_SPEED;
+	set_xbox_leds(limit);
+      }
+      btnDown = 1;
+    } else {
+      btnDown = 0;
+    }
+
+    if(get_button(BTN_REINIT) == 1) {
+      if(btnReInit == 0) {
+	set_xbox_leds(5);
+	send_initialise(ser);
+	xtime delay = { 2, 0 };
+	thrd_sleep(&delay);
+      }
+      btnReInit = 1;
+    } else {
+      btnReInit = 0;
+    }
+    
     short mValue = get_axis(THROTTLE_AXIS);
     short sValue = get_axis(STEERING_AXIS);
     mValue /= 32;
     mValue += 1024;
     mValue /= 2;
+    mValue /= (MAX_SPEED - limit);
     if(mValue > 1024) { mValue = 1024; }
     mValue = get_button(REVERSE_BUTTON) ? -mValue : mValue;
 
