@@ -20,11 +20,11 @@ extern HardwareSerial Serial;
 #define STEERING_ABS_MIN (-1024)
 
 
-#define PIN_STEERING_PEND   (89) // A8
-#define PIN_STEERING_ALARM  (88) // A9
-#define PIN_STEERING_PULSE  (87) // A10
-#define PIN_STEERING_DIR    (86) // A11
-#define PIN_STEERING_ENABLE (85) // A12
+#define PIN_STEERING_PEND   (PIN_A8) // A8
+#define PIN_STEERING_ALARM  (PIN_A9) // A9
+#define PIN_STEERING_PULSE  (PIN_A10) // A10
+#define PIN_STEERING_DIR    (PIN_A11) // A11
+#define PIN_STEERING_ENABLE (PIN_A12) // A12
 
 #define STEERING_GAP 5
 #define STEERING_MIN_TICK   (1000000 / 200000)
@@ -39,7 +39,7 @@ extern HardwareSerial Serial;
 // throttle
 
 //#define PIN_THROTTLE 9
-#define PIN_THROTTLE (LED_BUILTIN)
+#define PIN_THROTTLE     (LED_BUILTIN)
 #define PIN_THROTTLE_DIR 10
 
 #define THROTTLE_ABS_MAX 1024
@@ -112,6 +112,8 @@ void steer_loop() {
 
 void steering_init() {
   int steps;
+  digitalWrite(PIN_STEERING_ENABLE, LOW);
+  
   while (steer_left()) {
     delay(5);
   }
@@ -172,6 +174,7 @@ void setup() {
   steering_cur = 0;
   pinMode(PIN_STEERING_PULSE, OUTPUT);
   pinMode(PIN_STEERING_DIR, OUTPUT);
+  pinMode(PIN_STEERING_ENABLE, OUTPUT);
   digitalWrite(PIN_STEERING_PULSE, LOW);
   digitalWrite(PIN_STEERING_DIR, LOW);
   pinMode(PIN_STEERING_LIMIT_L, INPUT);
@@ -190,8 +193,9 @@ void setup() {
   // Throttle
   pinMode(PIN_THROTTLE, OUTPUT);
   pinMode(PIN_THROTTLE_DIR, OUTPUT);
+  digitalWrite(PIN_THROTTLE, LOW);
+  digitalWrite(PIN_THROTTLE_DIR, LOW);
   throttle_enabled = false;
-  
   
   // Serial command parsing
   cur = buf;
@@ -247,8 +251,8 @@ void loop() {
       break;
     case CMD_INIT:
       //if(cmd.value == 1) {
-      //steering_init();
-      //}
+      steering_init();
+	//}
       throttle_enable();
       break;
     case CMD_STEER_REL:
@@ -260,7 +264,7 @@ void loop() {
     case CMD_THROTTLE_ABS: {
       int v = map_throttle_value(cmd.value);
       throttle_set(v);
-      // Serial.print("Throttle: ");
+      //Serial.print("Throttle: ");
       //Serial.print(v);
       //Serial.print("\r\n");
       //delay(5);
