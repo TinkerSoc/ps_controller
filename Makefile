@@ -10,22 +10,22 @@ CFLAGS += -MMD -MP -std=c11 -Wall -Wextra -O3 -pedantic -I./lib/ -D_XOPEN_SOURCE
 LDLIBS += -lpthread
 
 SRC = $(wildcard $(SRCDIR)/*.c)
-OBJ = $(patsubst $(SRCDIR)/%, $(OBJDIR)/%, $(SRC:.c=.o))
-DEP = $(OBJ:.o=.d)
+OBJ = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
 
 .PHONY: all clean arduino
 all: controller arduino
 
-controller: $(OBJ)
+controller: bin/main.o bin/controller.o bin/serial.o bin/command.o
 	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
+$(OBJDIR)/%.o: CFLAGS += -MF $(@:.o=.d)
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
 $(OBJDIR):
 	mkdir $@
 
--include $(DEP)
+-include $(wildcard $(OBJDIR)/*.d)
 
 debug: CFLAGS += -g3 -O -DDEBUG
 debug: all
@@ -33,7 +33,11 @@ debug: all
 arduino:
 	$(MAKE) -C arduino
 
-clean:
+clean-controller:
 	$(RM) -r $(OBJDIR)
 	$(RM) controller
-	$(MAKE) -C arduino clean
+
+clean: clean-controller
+	$(RM) -r $(OBJDIR)
+	$(RM) controller
+	-$(MAKE) -C arduino clean

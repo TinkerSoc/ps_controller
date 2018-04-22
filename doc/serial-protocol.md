@@ -11,27 +11,68 @@ SIGN := + | -
 
 VALUE := SIGN DIGIT+
 
-NL := \r\n
+NL := '\r' '\n'
 
 COMMAND := 'B' | 'F' | 'I' | 'R' | 'S' | 'T'
 
 STMT := COMMAND VALUE NL
 ```
 
-All lines will be terminated with `CRLF`. An example sequence of commands:
+## Commands
+
+Regarding interpretation of numbers, `-0` and `+0` are assumed to have the same
+value.
+
+### Braking (`B`)
+
+Set axle brake.
+
+| Value | Description |
+|-------|-------------|
+| `+0`  | Disable     |
+| `+1`  | Enable      |
+
+### Freewheeling (`F`)
+
+Allow coasting.
+
+| Value | Description |
+|-------|-------------|
+| `+0`  | Disable     |
+| `+1`  | Enable      |
+
+### Initialisation (`I`)
+
+Calibrate steering and enable motors.
+
+| Value | Description                               |
+|-------|-------------------------------------------|
+| `+0`  | Keep steering calibration, disable motors |
+| `+1`  | Calibrate steering, enable motors         |
+
+### Relative Steering (`R`)
+
+Steer by a specified amount from the current position.
+
+| Value           | Steering Direction |
+|-----------------|--------------------|
+| `-1024` to `-1` | Left               |
+| `-0` and `+0`   | None               |
+| `+1` to `+1024` | Right              |
 
 
-```
-I+0
-B+0
-M+300
-M-300
-F+0
-B+1
-```
+## Absolute Steering (`S`)
 
-Initialise, disengage brake, motor forwards 300, motor reverse 300,
-freewheel, engage brake.
+Set the steering to the provided absolute position.
 
-## Conclusion
-Totes works.
+| Value           | Description          |
+|-----------------|----------------------|
+| `-1024` to `-0` | Full left to centre  |
+| `+0` to `+1024` | Centre to full right |
+
+## Absolute Throttle (`T`)
+
+| Value           | Description          |
+|-----------------|----------------------|
+| `-1024` to `-0` | Full reverse to idle |
+| `+0` to `+1024` | Idle to full ahead   |

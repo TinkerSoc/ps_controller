@@ -3,6 +3,10 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
+#define COMMAND_VALUE_HIGH (1024)
+#define COMMAND_VALUE_LOW (-1024)
+#define COMMAND_VALUE_OK(n) (n >= COMMAND_VALUE_LOW && n <= COMMAND_VALUE_HIGH)
+
 #define COMMAND_NEWLINE "\r\n"
 #define COMMAND_PRINTF ("%c%+d" COMMAND_NEWLINE)
 
@@ -27,11 +31,23 @@ typedef struct command_t {
 } command_t;
 
 /*
+ * Parse a command name. See `command_parse` for return
+ * values and side effects.
+ */
+char* command_name_parse(command_name_t*, const char*);
+
+/*  
+ * Parse a command value. See `command_parse` for return
+ * values and side effects.
+ */
+char* command_value_parse(command_value_t*, const char*);
+
+    
+/*
  * Parse a string into a command struct.
  * Returns a pointer to the end of the consumed input.
- * Does not consume any input or modify the command struct
- * on a parse failure.
- *
+ * Does not consume any input on parse failure.
+ * Struct may contain garbage if parsing fails.
  * For example:
  *
  *     command_t cmd;
@@ -41,7 +57,7 @@ typedef struct command_t {
  *
  *     if ( res == raw ) { // parse failure }
  */
-char* command_parse(command_t*, char*);
+char* command_parse(command_t*, const char*);
 
 /*
  * Print a command to a file handle.
