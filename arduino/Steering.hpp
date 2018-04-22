@@ -11,6 +11,9 @@
 
 #define STEERING_MICROS_PER_SECOND (1000000)
 
+#define STEERING_ENABLE_VAL LOW
+#define STEERING_DISABLE_VAL HIGH
+
 class Steering {
 private:
   static Steering* instance;
@@ -34,9 +37,10 @@ private:
   int pin_limit_right;
   int pin_dir;
   int pin_pulse;
+  int pin_enable;
 
 public:  
-  Steering(int pin_limit_left, int pin_limit_right, int pin_dir, int pin_pulse, uint32_t freq_hz);
+  Steering(int pin_limit_left, int pin_limit_right, int pin_dir, int pin_pulse, int pin_enable, uint32_t freq_hz);
 
   void enable();
   void disable();

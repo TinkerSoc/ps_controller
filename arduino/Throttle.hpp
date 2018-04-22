@@ -24,7 +24,7 @@ private:
   int pin_enable;
  
 public:
-  Throttle(int pin_dir, int pin_pwm, int pin_enable);
+  Throttle(int pin_dir, int pin_pwm);
 
   void enable();
   void disable();

@@ -5,13 +5,12 @@
 
 Throttle *Throttle::instance = NULL;
 
-Throttle::Throttle(int pin_dir, int pin_pwm, int pin_enable) :
+Throttle::Throttle(int pin_dir, int pin_pwm) :
   enabled(false),
-  pin_dir(pin_dir), pin_pwm(pin_pwm), pin_enable(pin_enable)
-{
+  pin_dir(pin_dir), pin_pwm(pin_pwm) {
+
   pinMode(pin_dir, OUTPUT);
   pinMode(pin_pwm, OUTPUT);
-  pinMode(pin_enable, OUTPUT);
 
   disable();
   
@@ -20,12 +19,10 @@ Throttle::Throttle(int pin_dir, int pin_pwm, int pin_enable) :
 
 void Throttle::enable() {
   digitalWrite(pin_pwm, LOW);
-  digitalWrite(pin_enable, THROTTLE_ENABLE_VAL);
   enabled = true;
 }
 
 void Throttle::disable() {
-  digitalWrite(pin_enable, THROTTLE_DISABLE_VAL);
   digitalWrite(pin_pwm, LOW);
   enabled = false;
 }

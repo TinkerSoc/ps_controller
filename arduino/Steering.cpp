@@ -6,15 +6,17 @@
 Steering *Steering::instance = NULL;
 
 Steering::Steering(int pin_limit_left, int pin_limit_right,
-		   int pin_dir, int pin_pulse, uint32_t freq_hz) :
+		   int pin_dir, int pin_pulse, int pin_enable,
+		   uint32_t freq_hz) :
   limit_left(false), limit_right(false), enabled(false),
   pin_limit_left(pin_limit_left), pin_limit_right(pin_limit_right),
-  pin_dir(pin_dir), pin_pulse(pin_pulse)
+  pin_dir(pin_dir), pin_pulse(pin_pulse), pin_enable(pin_enable)
 {
   pinMode(pin_limit_left, INPUT);
   pinMode(pin_limit_right, INPUT);
   pinMode(pin_dir, OUTPUT);
   pinMode(pin_pulse, OUTPUT);
+  pinMode(pin_enable, OUTPUT);
 
   disable();
 
@@ -27,10 +29,12 @@ Steering::Steering(int pin_limit_left, int pin_limit_right,
 }
 
 void Steering::enable() {
+  digitalWrite(pin_enable, STEERING_ENABLE_VAL);
   enabled = true;
 }
 
 void Steering::disable() {
+  digitalWrite(pin_enable, STEERING_DISABLE_VAL);
   enabled = false;
 }
 
