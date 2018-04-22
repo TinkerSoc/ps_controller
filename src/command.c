@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,8 +20,8 @@ char* command_name_parse(command_name_t* name, const char* str) {
   
 char* command_value_parse(command_value_t* val, const char* orig) {
   const char* str = orig;
-  int res = 0;
-  int neg;
+  command_value_t res = 0;
+  int8_t neg;
   switch(*str) {
   case '+':
     neg = 0;
