@@ -11,9 +11,16 @@ Steering::Steering(int pin_limit_left, int pin_limit_right,
   pin_limit_left(pin_limit_left), pin_limit_right(pin_limit_right),
   pin_dir(pin_dir), pin_pulse(pin_pulse)
 {
-  instance = this;
+  pinMode(pin_limit_left, INPUT);
+  pinMode(pin_limit_right, INPUT);
+  pinMode(pin_dir, OUTPUT);
+  pinMode(pin_pulse, OUTPUT);
+
+  disable();
 
   interval = STEERING_MICROS_PER_SECOND / freq_hz;
+
+  instance = this;
 
   attachInterrupt(digitalPinToInterrupt(pin_limit_left), Steering::isr_cb_left, CHANGE);
   attachInterrupt(digitalPinToInterrupt(pin_limit_right), Steering::isr_cb_right, CHANGE);

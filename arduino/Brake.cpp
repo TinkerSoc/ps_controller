@@ -4,7 +4,8 @@
 Brake *Brake::instance = NULL;
 
 Brake::Brake(int pin_enable) : enabled(true), pin_enable(pin_enable) {
-  digitalWrite(pin_enable, BRAKE_VAL_ENABLE);
+  pinMode(pin_enable, OUTPUT);
+  enable();
 }
 
 void Brake::enable() {

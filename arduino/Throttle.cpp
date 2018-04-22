@@ -9,8 +9,12 @@ Throttle::Throttle(int pin_dir, int pin_pwm, int pin_enable) :
   enabled(false),
   pin_dir(pin_dir), pin_pwm(pin_pwm), pin_enable(pin_enable)
 {
-  digitalWrite(pin_enable, THROTTLE_DISABLE_VAL);
-  digitalWrite(pin_pwm, LOW);
+  pinMode(pin_dir, OUTPUT);
+  pinMode(pin_pwm, OUTPUT);
+  pinMode(pin_enable, OUTPUT);
+
+  disable();
+  
   instance = this;
 }
 
