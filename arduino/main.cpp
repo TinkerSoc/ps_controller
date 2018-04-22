@@ -146,7 +146,7 @@ bool throttle_set(int n) {
   }
 
   digitalWrite(PIN_THROTTLE_DIR, n < 0 ? STEERING_DIR_LEFT : STEERING_DIR_RIGHT);
-  analogWrite(PIN_THROTTLE, n);
+  analogWrite(PIN_THROTTLE, abs(n));
   return true;
 }
 
